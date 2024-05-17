@@ -1,6 +1,6 @@
 import styles from './app.module.css';
 import data from './data.json';
-import { act, useState } from 'react';
+import { useState } from 'react';
 
 export const App = () => {
 	// Можно задать 2 состояния — steps и activeIndex
