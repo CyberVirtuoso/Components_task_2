@@ -1,6 +1,6 @@
 import styles from './app.module.css';
 import data from './data.json';
-import { useState } from 'react';
+import { act, useState } from 'react';
 
 export const App = () => {
 	// Можно задать 2 состояния — steps и activeIndex
@@ -9,34 +9,26 @@ export const App = () => {
 
 	// И определить 3 обработчика: Клик назад, Клик вперед, Начать сначала
 	const clickNext = (e, index) => {
-		console.log(index);
-		const updateIndex = index !== undefined ? index : activeIndex + 1;
-		console.log(updateIndex);
-		if (activeIndex === 0) {
-			setIsFirst(false);
-		} else if (updateIndex === 0) {
-			setIsFirst(true);
-			setIsLast(false);
-		} else if (updateIndex === steps.length - 1) {
-			setIsLast(true);
-		}
-		setActiveIndex(updateIndex);
+		const isCurrentLast = activeIndex === steps.length - 1;
+		let newActiveIndex = isCurrentLast ? 0 : activeIndex + 1;
+
+		setActiveIndex(newActiveIndex);
 	};
 
-	const clickPreceding = () => {
-		setActiveIndex((i) => i - 1);
-		if (activeIndex - 1 === 0) setIsFirst(true);
+	const clickBack = () => {
+		const isCurrentFirst = activeIndex === 0;
+		let newActiveIndex = isCurrentFirst ? steps.length - 1 : activeIndex - 1;
+
+		setActiveIndex(newActiveIndex);
 	};
 
-	const clickFromTheStart = () => {
-		setActiveIndex(0);
-		setIsFirst(true);
-		setIsLast(false);
+	const clickDot = (index) => {
+		setActiveIndex(index);
 	};
 
 	// И 2 переменных-флага — находимся ли мы на первом шаге, и находимся ли на последнем
-	let [isFirst, setIsFirst] = useState(true);
-	let [isLast, setIsLast] = useState(false);
+	const isFirst = activeIndex === 0;
+	const isLast = activeIndex === steps.length - 1;
 
 	return (
 		<div className={styles.container}>
@@ -49,7 +41,7 @@ export const App = () => {
 						{steps[activeIndex].content}
 					</div>
 					<ul className={styles['steps-list']}>
-						{[...data].map(({ id, title, content }, index) => (
+						{data.map(({ id, title, content }, index) => (
 							<li
 								className={
 									styles['steps-item'] +
@@ -61,35 +53,20 @@ export const App = () => {
 								key={id}
 							>
 								<button
-									onClick={(e) => {
-										clickNext(e, index);
-									}}
+									onClick={() => clickDot(index)}
 									className={styles['steps-item-button']}
 								>
 									{index + 1}
 								</button>
-								{steps[index].title}
+								{title}
 							</li>
 						))}
 					</ul>
 					<div className={styles['buttons-container']}>
-						<button
-							className={styles.button}
-							onClick={clickPreceding}
-							disabled={isFirst}
-						>
-							Назад
+						<button className={styles.button} onClick={clickBack}>
+							{isFirst ? 'Начать с конца' : 'Назад'}
 						</button>
-						<button
-							className={styles.button}
-							onClick={
-								!isLast
-									? (e) => {
-											clickNext();
-										}
-									: clickFromTheStart
-							}
-						>
+						<button className={styles.button} onClick={clickNext}>
 							{!isLast ? 'Далее' : 'Начать сначала'}
 						</button>
 					</div>
